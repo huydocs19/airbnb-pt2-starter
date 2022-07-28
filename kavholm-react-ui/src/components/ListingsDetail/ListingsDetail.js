@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
+import { useState} from "react"
 import { Link, useParams } from "react-router-dom"
 import { Button, BookingModal, NotFound } from "components"
-import apiClient from "services/apiClient"
+import { useListingsDetail } from "hooks/useListingsDetail"
 import { formatPrice } from "utils/format"
 import { getListingPrice, getMarketplaceFees } from "utils/calculations"
 import person from "assets/person.svg"
@@ -10,33 +10,10 @@ import stars from "assets/stars.svg"
 import save from "assets/save.svg"
 import "./ListingsDetail.css"
 
-export default function ListingsDetail({ user, isAuthenticated, setBookings }) {
+export default function ListingsDetail() {  
   const { listingId } = useParams()
-  const [hasFetched, setHasFetched] = useState(false)
-  const [isFetching, setIsFetching] = useState(false)
-  const [error, setError] = useState(null)
-  const [listing, setListing] = useState({})
+  const { isFetching, listing, error, isAuthenticated } = useListingsDetail(listingId)
   const [isBooking, setIsBooking] = useState(false)
-
-  useEffect(() => {
-    const fetchListing = async () => {
-      setIsFetching(true)
-      setHasFetched(false)
-
-      const { data, error } = await apiClient.fetchListingById(listingId)
-      if (error) setError(error)
-      if (data?.listing) {
-        setListing(data.listing)
-      }
-
-      setIsFetching(false)
-      setHasFetched(true)
-    }
-
-    if (isAuthenticated) {
-      fetchListing()
-    }
-  }, [listingId, isAuthenticated])
 
   const handleBookingStartClick = () => {
     setIsBooking(true)
@@ -44,18 +21,16 @@ export default function ListingsDetail({ user, isAuthenticated, setBookings }) {
 
   if (isFetching) return null
 
-  if (hasFetched && !listing?.price) {
+  if (!listing?.price) {
     return <NotFound message={"No listing found."} />
   }
 
   return (
     <div className="ListingsDetail">
-      <BookingModal
-        user={user}
+      <BookingModal       
         isOpen={isBooking}
         toggleModal={() => setIsBooking(false)}
-        listing={listing}
-        setBookings={setBookings}
+        listing={listing}        
       />
 
       <div className="content">

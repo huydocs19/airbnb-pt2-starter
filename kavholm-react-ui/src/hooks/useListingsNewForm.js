@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import apiClient from "services/apiClient"
+import { useListingsContext } from "contexts/listings"
 
-export const useListingsNewForm = (addListing) => {
+export const useListingsNewForm = () => {
+  const {handlers} = useListingsContext()
   const navigate = useNavigate()
   const [isProcessing, setIsProcessing] = useState(false)
   const [errors, setErrors] = useState({})
@@ -44,7 +46,7 @@ export const useListingsNewForm = (addListing) => {
         imageUrl2: "",
         imageUrl3: "",
       })
-      addListing(data.listing)
+      handlers.addListing(data.listing)
 
       navigate(`/listings/${data.listing?.id}/`)
     }
